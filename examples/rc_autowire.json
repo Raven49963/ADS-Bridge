@@ -1,0 +1,24 @@
+{
+  "instances": [
+    {"name": "SRC1", "master": "ads_sources:V_AC:symbol", "at": [-2, 0], "angle": -90},
+    {"name": "R1", "master": "ads_rflib:R:symbol", "at": [0, 0], "parameters": {"R": "R_val"}},
+    {"name": "C1", "master": "ads_rflib:C:symbol", "at": [3, 0], "angle": -90, "parameters": {"C": "C_val"}},
+    {"name": "G1", "master": "ads_rflib:GROUND:symbol", "at": [-2, -1], "angle": -90},
+    {"name": "G2", "master": "ads_rflib:GROUND:symbol", "at": [3, -1], "angle": -90},
+    {"name": "AC1", "master": "ads_simulation:AC:symbol", "at": [-4, 1],
+     "parameters": {"Start": "1 Hz", "Stop": "1 MHz", "Dec": "5", "Step": ""}}
+  ],
+  "variables": {
+    "R_val": "3 kOhm",
+    "C_val": "1 uF"
+  },
+  "pins": [
+    {"name": "VOUT", "direction": "output", "at": [4.5, 0], "connect": "C1.1"}
+  ],
+  "wires": [
+    {"from": "SRC1.1", "to": "R1.1", "label": "VIN"},
+    {"from": "SRC1.2", "to": "G1.1"},
+    {"from": "R1.2", "to": "C1.1", "label": "VOUT"},
+    {"from": "C1.2", "to": "G2.1"}
+  ]
+}

@@ -1,0 +1,12 @@
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.ads_bridge/
+*.ds
+*.dds
+*.gds
+*.log
+*_wrk/

@@ -1,0 +1,17 @@
+{
+  "instances": [
+    {"name": "Term1", "master": "ads_simulation:Term:symbol", "at": [0, 0], "angle": -90,
+     "parameters": {"Num": "1", "Z": "50 Ohm"}},
+    {"name": "Term2", "master": "ads_simulation:Term:symbol", "at": [6, 0], "angle": -90,
+     "parameters": {"Num": "2", "Z": "50 Ohm"}},
+    {"name": "R1", "master": "ads_rflib:R:symbol", "at": [2.5, 0], "parameters": {"R": "50 Ohm"}},
+    {"name": "G1", "master": "ads_rflib:GROUND:symbol", "at": [0, -1], "angle": -90},
+    {"name": "G2", "master": "ads_rflib:GROUND:symbol", "at": [6, -1], "angle": -90},
+    {"name": "SP1", "master": "ads_simulation:S_Param:symbol", "at": [0, -3],
+     "parameters": {"Start": "100 MHz", "Stop": "1 GHz", "Step": "100 MHz"}}
+  ],
+  "wires": [
+    {"points": [[0, 0], [2.5, 0]], "label": "PORT1"},
+    {"points": [[3.5, 0], [6, 0]], "label": "PORT2"}
+  ]
+}

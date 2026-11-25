@@ -1,0 +1,6 @@
+{
+  "shapes": [
+    {"type": "rectangle", "layer": "cond", "points": [[0, 0], [20, 5]]},
+    {"type": "polygon", "layer": "cond", "points": [[20, 0], [30, 0], [30, 5]]}
+  ]
+}

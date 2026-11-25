@@ -1,0 +1,4 @@
+mcp==1.30.0
+numpy>=1.26
+scipy>=1.11
+scikit-rf>=1.0

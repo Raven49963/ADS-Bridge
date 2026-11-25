@@ -1,0 +1,15 @@
+{
+  "instances": [
+    {"name": "SRC1", "master": "ads_sources:V_AC:symbol", "at": [-2, 0], "angle": -90},
+    {"name": "R1", "master": "ads_rflib:R:symbol", "at": [0, 0], "parameters": {"R": "3 kOhm"}},
+    {"name": "C1", "master": "ads_rflib:C:symbol", "at": [2, 0], "angle": -90, "parameters": {"C": "1 uF"}},
+    {"name": "G1", "master": "ads_rflib:GROUND:symbol", "at": [-2, -1], "angle": -90},
+    {"name": "G2", "master": "ads_rflib:GROUND:symbol", "at": [2, -1], "angle": -90},
+    {"name": "AC1", "master": "ads_simulation:AC:symbol", "at": [-4, 1],
+     "parameters": {"Start": "1 Hz", "Stop": "1 MHz", "Dec": "5", "Step": ""}}
+  ],
+  "wires": [
+    {"points": [[-2, 0], [0, 0]]},
+    {"points": [[1, 0], [2, 0]], "label": "OUT"}
+  ]
+}

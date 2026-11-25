@@ -1,0 +1,49 @@
+[build-system]
+requires = ["setuptools>=77", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ads-bridge"
+version = "2.3.5"
+description = "Agent-native local & headless automation bridge for Keysight ADS 2026 Update 0.1 (Windows 64-bit)"
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+requires-python = ">=3.11"
+dependencies = []
+
+[project.urls]
+Repository = "https://github.com/Raven49963/ADS-Bridge"
+Issues = "https://github.com/Raven49963/ADS-Bridge/issues"
+
+[project.optional-dependencies]
+mcp = ["mcp>=1.25,<2", "numpy>=1.26", "scipy>=1.11", "scikit-rf>=1.0"]
+rf = ["numpy>=1.26", "scipy>=1.11", "scikit-rf>=1.0"]
+
+[project.scripts]
+ads-bridge = "bridge:main"
+ads-bridge-mcp = "mcp_server:main"
+
+[tool.setuptools]
+packages = ["addon_entry", "examples"]
+include-package-data = false
+py-modules = [
+    "ads_addon",
+    "bridge",
+    "design_ops",
+    "docs_pdk",
+    "install_addon",
+    "mcp_server",
+    "netlist_parser",
+    "netlist_review",
+    "rf_compress",
+    "rf_optimizer",
+    "rf_workflow",
+    "smoke_rc",
+    "verify_closed_loop",
+    "verify_live",
+    "worker",
+]
+
+[tool.setuptools.package-data]
+examples = ["*.json"]
