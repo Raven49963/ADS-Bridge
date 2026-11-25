@@ -2,7 +2,7 @@
 
 这个工具让你用脚本或 AI 操作 **Keysight ADS**。比如，你可以让它画一个 RC 滤波器，把电阻从 3 kΩ 改成 6 kΩ，交给 ADS 仿真，再告诉你截止频率变了多少。你可以把同一套步骤用在自己的电路上，也可以打开 ADS 查看原理图和仿真结果。
 
-[快速开始](#快速开始) · [使用手册](docs/guide.md) · [项目优势](#项目优势) · [下载 v2.3.5](https://github.com/Raven49963/ADS-Bridge/releases/tag/v2.3.5) · [MIT 许可证](LICENSE)
+[快速开始](#快速开始) · [使用手册](docs/guide.md) · [项目优势](#项目优势) · [论文使用声明](#论文使用声明) · [下载 v2.3.5](https://github.com/Raven49963/ADS-Bridge/releases/tag/v2.3.5) · [MIT 许可证](LICENSE)
 
 > 本项目参考 [Arcadia-1/virtuoso-bridge-lite](https://github.com/Arcadia-1/virtuoso-bridge-lite)，借鉴了用 AI、脚本和命令行操作电路设计软件的思路。[参考与致谢](#参考与致谢)
 
@@ -48,6 +48,14 @@ flowchart LR
 ## 验证记录
 
 v2.3.5 通过了 68 项离线测试，也用真实 ADS 跑通了后台仿真。滤波器示例把电阻从 3 kΩ 改成 6 kΩ 后，截止频率从 **52.34 Hz 降到 26.47 Hz**。另一个用例检查功率是否达标。仿真结果是 1 mW，目标是 10 mW，无论目标写成 W 还是 dBm，结果都正确显示为未达标。[发行说明](https://github.com/Raven49963/ADS-Bridge/releases/tag/v2.3.5) · [自己复验](docs/guide.md#测试与排查)
+
+## 论文使用声明
+
+如果在论文中使用了 ADS 桥接工具，请在方法或致谢部分注明工具名称、所用版本、实际用途和仓库地址，并署名 **qihang yuan**。
+
+> 本研究使用 qihang yuan 的 ADS 桥接工具（版本 [填写版本号]）完成[填写实际用途]。源码见 [Raven49963/ADS-Bridge](https://github.com/Raven49963/ADS-Bridge)。
+
+项目联系人 **qihang yuan** · [qihangyuan43@gmail.com](mailto:qihangyuan43@gmail.com)
 
 ## 参考与致谢
 
