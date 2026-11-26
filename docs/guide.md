@@ -1,10 +1,10 @@
-# ADS桥接工具使用手册
+# ADS Bridge User Guide
 
-[返回项目首页](../README.md) · [版本记录](../CHANGELOG.md)
+[Project home](../README.md) · [中文使用手册](guide.zh-CN.md) · [Changelog (Chinese)](../CHANGELOG.md)
 
-## 安装与环境检查
+## Installation
 
-需要 **Windows、Keysight ADS 2026 Update 0.1（含 64 位仿真器）和有效 ADS 仿真许可证**。客户端 Python 需要 **3.11 或以上**。ADS 会用自带 Python 操作其工作区和仿真器。
+You need **Windows, Keysight ADS 2026 Update 0.1 with the 64-bit simulator, and a valid ADS simulation license**. Install **Python 3.11 or later** for the client. The bridge uses the Python interpreter bundled with ADS to open workspaces and run simulations.
 
 ```powershell
 git clone https://github.com/Raven49963/ADS-Bridge.git
@@ -14,28 +14,26 @@ python -m venv .venv
 .\.venv\Scripts\ads-bridge.exe status
 ```
 
-若自动探测不到 ADS，可设置安装目录，再次运行 `status`：
+If `status` cannot find ADS, point it to your installation, then run the check again.
 
 ```powershell
 $env:HPEESOF_DIR = 'C:\Program Files\Keysight\ADS2026_Update0.1'
 .\.venv\Scripts\ads-bridge.exe status
 ```
 
-`.[rf]` 安装 RF 数据和优化依赖。安装命令也适用于从发行版下载并解压后的源码目录。桥接源码使用 [MIT 许可证](../LICENSE)。Keysight ADS、仿真许可证、第三方器件模型与 PDK 由各自供应方授权，需独立安装。
+For RF data analysis and optimization without the MCP client dependencies, install `.[rf]`. If you downloaded the source archive from GitHub Releases, extract it and run the installation commands from the extracted directory.
 
-## 运行设计与仿真
-
-### 运行完整的 RC 示例
+## Run the RC example
 
 ```powershell
 .\.venv\Scripts\python.exe -B .\verify_closed_loop.py
 ```
 
-脚本通过 ADS 无头构建和修改 RC 原理图，导出网表、识别 RC 拓扑、运行仿真并与解析解比较。后续步骤还验证 S 参数、批处理、优化、GDSII、Data Display 和 MCP。可使用 [RC 原理图 JSON](../examples/rc_autowire.json) 起步。在线 ADS 会话可达时，脚本也会尝试联调在线桥接。
+The script builds a filter schematic without opening the ADS window, exports and reads its netlist, changes the resistor, then compares the simulated response with the analytical result. Later steps check S-parameters, batch runs, optimization, GDSII export, Data Display, and MCP. If a live ADS session is reachable, the script also tries the GUI bridge. The [example schematic definition](../examples/rc_autowire.json) is a starting point for your own design.
 
-### 用 Python 和 CLI 操作网表
+## Run an existing netlist
 
-使用 ADS 导出的 `.ckt` 或编写的小网表。测试台用 `tb` 模式检查，独立 DUT 用 `dut` 模式。
+Use an ADS `.ckt` export or a netlist you wrote. Check a testbench with `--mode tb` or a standalone device under test with `--mode dut`.
 
 ```powershell
 .\.venv\Scripts\ads-bridge.exe netlist-inspect .\my_circuit.ckt
@@ -44,7 +42,7 @@ $env:HPEESOF_DIR = 'C:\Program Files\Keysight\ADS2026_Update0.1'
 .\.venv\Scripts\ads-bridge.exe --help
 ```
 
-Python 可直接调用同一套功能：
+You can run the simulation from Python too.
 
 ```python
 from pathlib import Path
@@ -55,15 +53,17 @@ job = bridge.simulate_netlist(Path("my_circuit.ckt"))
 print(job)
 ```
 
-完整流程见 [验证脚本](../verify_closed_loop.py)。`headless_workflow` 可在一个 ADS Python 进程内连续执行建库、器件内省、建图、改参和导出。写入时传绝对工作区路径并设置 `write=True`，创建测试工作区时加 `create_workspace=True`。
+Use `headless_workflow` to create a library, inspect component pins, build or edit a schematic, and export it within one ADS Python process. To write to a workspace, pass its absolute path and set `write=True`. Set `create_workspace=True` to create a test workspace. See the [end-to-end script](../verify_closed_loop.py) for runnable steps.
 
-## 接入 AI 客户端
+## Connect an AI client
 
 ```powershell
 .\setup_client.ps1
 ```
 
-脚本创建或复用外部 Python 环境并输出 `mcpServers.ads_bridge` 配置。Google Antigravity 可在 MCP 管理界面的原始配置中合并该条目。其他支持本机 **stdio MCP** 的客户端按其配置格式填入同一命令和参数。以 **Codex** 为例，在项目的 `.codex/config.toml` 中配置如下，替换两处本机路径：
+This script creates or reuses a Python environment and prints a `mcpServers.ads_bridge` configuration. In **Google Antigravity**, merge that entry into the raw MCP configuration. Other clients that run local MCP servers over standard input and output (stdio) can use the same command and arguments in their own configuration format.
+
+For **Codex**, add this to the project's `.codex/config.toml`, replacing both example paths with your local paths.
 
 ```toml
 [mcp_servers.ads_bridge]
@@ -71,17 +71,17 @@ command = 'C:\path\to\ADS-Bridge\.venv\Scripts\python.exe'
 args = ['-B', 'C:\path\to\ADS-Bridge\mcp_server.py', '--profile', 'headless']
 ```
 
-如已配置 `HPEESOF_DIR` 或 `ADS_BRIDGE_RUNTIME`，确保客户端启动的子进程和 ADS 使用相同设置。编辑配置后重载客户端，先调用 `bridge_status`，再尝试 `component_describe` 或 `simulate_netlist`。连接已打开的 GUI 时使用 `full` 配置，并从 `session_list` 获取会话。
+If you set `HPEESOF_DIR` or `ADS_BRIDGE_RUNTIME`, make sure the MCP process sees those settings. To connect to a live ADS session, use `full` and make sure the bridge and the add-on use the same runtime directory. Reload the client, then call `bridge_status`. Try `component_describe` or `simulate_netlist` in the headless profile, or use `session_list` to find a GUI session in the full profile.
 
-| 配置 | 工具数 | 适用任务 |
+| Profile | Tools | Use it for |
 | --- | ---: | --- |
-| `full` | 55 | GUI、无头、仿真作业、全部设计与 RF 工具 |
-| `headless` | 19 | 无头设计、网表、批量仿真及 RF 分析 |
-| `rf-core` | 13 | 网表句柄、评估、优化和压缩，减少发送给 AI 的工具定义 |
+| `full` | 55 | GUI sessions, headless runs, and the complete RF toolkit |
+| `headless` | 19 | Schematic work without the ADS window, batch simulation, and RF analysis |
+| `rf-core` | 13 | Reusing netlists, checking specs, optimization, and compact summaries |
 
-## 连接在线 ADS
+## Connect to the ADS window
 
-在 ADS 主窗口的 **Tools → Python Console** 执行一次注册：
+In the ADS main window, open **Tools → Python Console** and register the add-on once.
 
 ```python
 import sys
@@ -92,45 +92,44 @@ import install_addon
 install_addon.install()
 ```
 
-从 **Tools → ADS Bridge** 启动桥接。先选择 **Start read-only** 检查现有原理图与生成网表，需要改图时在测试工作区使用 **Start with write access to this workspace**。用 CLI 的 `sessions` 或 MCP 的 `session_list` 查看在线会话，并使用 `session_id` 与 `workspace_id` 定位设计。GUI 模式可打开原理图、Data Display 报告及抓取窗口图像。
+Open **Tools → ADS Bridge** and select **Start read-only** to inspect a schematic or generate a netlist. To edit a test workspace, select **Start with write access to this workspace**. Use the CLI command `sessions` or the MCP tool `session_list` to find the session. Use its `session_id` and `workspace_id` to identify the design. The GUI bridge can open schematics and Data Display reports, and capture window images.
 
-## 工具与工作流索引
+## Tool reference
 
-| 任务 | 常用操作 |
+| Task | Common tools |
 | --- | --- |
-| 查本机环境、文档与器件 | `bridge_status`、`docs_search`、`pdk_list`、`pdk_search`、`pdk_describe`、`component_describe` |
-| 建库、原理图、修改连线和参数 | `library_create`、`design_list`、`design_read`、`design_build`、`design_update`、`design_check` |
-| 生成、理解、检查及修改网表 | `netlist_generate`、`netlist_inspect`、`netlist_check`、`netlist_register`、`netlist_patch`、`netlist_compress` |
-| ADS 求解及作业管理 | `simulate_netlist`、`simulate_batch`、`simulation_submit`、`simulation_status`、`simulation_cancel`、`simulation_result`、`simulation_log_summary` |
-| 数据集回查与分析 | `dataset_describe`、`dataset_trace`、`dataset_table`、`dataset_analyze`、`dataset_compress`、`touchstone_compress` |
-| 规格验收与设计迭代 | `design_eval_step`、`sensitivity_scan`、`optimize_netlist` |
-| 版图与报告 | `layout_build`、`layout_read`、`layout_export_gds`、`dds_build`、`window_open` |
-| GUI 与跨客户端交接 | `gui_launch`、`session_inspect`、`session_capture`、`request_get`、`request_reconcile` |
+| Inspect the ADS installation, docs, and components | `bridge_status`, `docs_search`, `pdk_list`, `pdk_search`, `pdk_describe`, `component_describe` |
+| Create libraries and edit schematics | `library_create`, `design_list`, `design_read`, `design_build`, `design_update`, `design_check` |
+| Generate, inspect, and update netlists | `netlist_generate`, `netlist_inspect`, `netlist_check`, `netlist_register`, `netlist_patch`, `netlist_compress` |
+| Run and manage simulations | `simulate_netlist`, `simulate_batch`, `simulation_submit`, `simulation_status`, `simulation_cancel`, `simulation_result`, `simulation_log_summary` |
+| Read datasets and analyze results | `dataset_describe`, `dataset_trace`, `dataset_table`, `dataset_analyze`, `dataset_compress`, `touchstone_compress` |
+| Check specs and tune parameters | `design_eval_step`, `sensitivity_scan`, `optimize_netlist` |
+| Work with layouts and reports | `layout_build`, `layout_read`, `layout_export_gds`, `dds_build`, `window_open` |
+| Manage GUI sessions and resume work across clients | `gui_launch`, `session_inspect`, `session_capture`, `request_get`, `request_reconcile` |
 
-MCP 工具参数见 [工具定义](../mcp_server.py)，Python SDK 和 CLI 见 [入口代码](../bridge.py)。[双客户端验收指南](../ANTIGRAVITY-ACCEPTANCE.md) 给出如何利用会话和作业 ID 交接数据。
+See the [MCP tool definitions](../mcp_server.py) for parameters and [bridge.py](../bridge.py) for Python and CLI interfaces. The [two-client verification guide (Chinese)](../ANTIGRAVITY-ACCEPTANCE.md) shows how to use session and job IDs to pick up results from another client.
 
-## 规格验收流程
+## Check results against specifications
 
-1. 对网表运行 ERC，确认器件端子、参考地、分析控制器和外部模型路径。
-2. 运行仿真后通过数据目录确定 **block、axis、signal**。RF 功率需要明确负载，PAE 还需要输入功率和直流供电参数。
-3. 用 `design_eval_step` 执行改参、检查、求解和评分。逐行查看 `scorecard` 与总判定 `all_pass`，扫参时查看各切片。需要验收指定切片时传 `filters`。
-4. 对 `eq` 规格可传 `tolerance` 指定测量单位下的绝对容差。例如 `pout_w` 的目标为 `0.01`、容差为 `0.0002`，表示 10 mW ±0.2 mW。若使用 dBm，应按 dB 量纲定义门限。
-5. 需要保留可复核证据时，记录网表、规格、ADS 版本、作业 ID 和关键频点原始数据。先跑灵敏度扫描再使用优化器，可以判断哪些参数值得调整。
+1. Run electrical rule checks on the netlist. Check the part pins, ground reference, analysis settings, and external model paths.
+2. After simulation, identify the dataset **block**, **axis**, and **signal**. Specify the load for RF output power. Power-added efficiency (PAE) also needs input power and DC supply information.
+3. Use `design_eval_step` to apply changes, check the netlist, run the simulator, and score the results. Read `scorecard` for individual checks and `all_pass` for the overall result. For a sweep, inspect each sweep point or pass `filters` to check selected points.
+4. For an equality requirement (`eq`), use `tolerance` to set an absolute tolerance in the metric's unit. A `pout_w` target of `0.01` and a tolerance of `0.0002` means 10 mW ±0.2 mW. If you use dBm, express the tolerance in dB.
+5. To make the check reproducible, record the netlist, specs, ADS version, job ID, and raw data at key frequencies. A sensitivity scan can show which parameters are worth tuning before running the optimizer.
 
-## 测试与排查
+## Testing and troubleshooting
 
-闭环脚本会输出 JSON。用 `rc_closed_loop` 核对两个电阻值的截止频率和解析解误差，用 `mcp_stdio` 核对工具注册与数据回读。若 `live_gui_status` 为 `skipped`，可启动 ADS 桥接后使用下面的在线测试命令。
-
+The end-to-end script returns JSON. Check `rc_closed_loop` for cutoff frequencies and the difference from the analytical result, and `mcp_stdio` for tool registration and data readback. If `live_gui_status` is `skipped`, start the ADS add-on and use the GUI verification command below.
 
 ```powershell
-# 离线单元测试
+# Offline unit tests
 .\.venv\Scripts\python.exe -B -m unittest discover -s tests -v
 
-# 在线工作区测试，请使用已授权写入的临时 ADS 工作区
+# GUI test. Use a temporary ADS workspace with write access enabled.
 .\.venv\Scripts\python.exe -B .\verify_live.py "your-session-id" "C:\path\to\test_wrk"
 ```
 
-- **找不到 ADS 或仿真许可证**：检查 `status`、`HPEESOF_DIR` 和 ADS 许可环境。
-- **找不到在线会话**：确认插件已启动，ADS 和客户端指向同一运行目录（默认用户目录下的 `.ads_bridge`）。用 `sessions` 检查。
-- **仿真失败**：查看作业状态、`simulation_log_summary` 或完整日志，核对模型目录、控制器和收敛设置。
-- **数据为空或存在多维扫描**：先用 `dataset_describe` 确认分析块、轴和信号，在选定外层坐标后读回原始数据。
+- **ADS or its license is missing.** Check `status`, `HPEESOF_DIR`, and the ADS license settings.
+- **The GUI session is missing.** Start the add-on and check that ADS and the client use the same runtime directory. The default is `.ads_bridge` in your user directory. Use `sessions` to check.
+- **A simulation fails.** Read the job status, `simulation_log_summary`, or the full log. Check model directories, analysis settings, and convergence.
+- **A dataset is empty or has several sweep axes.** Use `dataset_describe` to find the correct block, axis, and signal, then select the outer sweep coordinates before reading raw samples.
